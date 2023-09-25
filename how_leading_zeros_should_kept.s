@@ -1,27 +1,76 @@
 .data
-    x: .word 16
-    y: .word 1024 
-    string1: .string  "should keep zeros:"
+    x1: .word 16
+    y1: .word 12
+    x2: .word 25
+    y2: .word 800
+    x3: .word 956
+    y3: .word 85 
+    string1: .string  "\nshould keep zeros:"
 
 .text
 .globl main
 main:
+    nop
+    addi t0,t0,1
+    addi sp, sp, -4
+    sw t0,0(sp)
+    addi t5, zero, 3
+    
     la a0, string1
     li a7, 4
     ecall
     
+    addi t0,t0,-2
+    blt t0, zero, firstx
+    beq t0, zero, secondx
+    bge t0, zero, thirdx
+    
+firstx:
     #read x
-    lw a0, x         
+    lw a0, x1         
     #call func                  
     jal ra, func
     #store in s1
     sw a0, 0(s1)
     
+firsty: 
     #read y
-    lw a0, y    
+    lw a0, y1    
     #call func              
     jal ra, func
+    jal ra, calcu
     
+secondx:
+    #read x
+    lw a0, x2         
+    #call func                  
+    jal ra, func
+    #store in s1
+    sw a0, 0(s1)
+    
+secondy: 
+    #read y
+    lw a0, y2    
+    #call func              
+    jal ra, func
+    jal ra, calcu
+    
+thirdx:
+    #read x
+    lw a0, x3         
+    #call func                  
+    jal ra, func
+    #store in s1
+    sw a0, 0(s1)
+    
+thirdy: 
+    #read y
+    lw a0, y3    
+    #call func              
+    jal ra, func
+    jal ra, calcu
+    
+calcu:
     #load s1 to t0
     lw t0, 0(s1)
     blt a0, t0, no
@@ -30,14 +79,20 @@ main:
     sub a0, a0, t0
     li a7, 1
     ecall
-    jal ra, exit
+    jal ra, restore
     
     #t0>a0
 no:
     sub a0, t0, a0
     li a7, 1
     ecall
-    jal ra, exit
+    jal ra, restore
+
+restore:
+    lw t0,0(sp)
+    addi sp, sp, 4
+    beq t0, t5, exit
+    jal ra, main
     
 exit:
     li a7, 10
